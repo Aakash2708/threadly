@@ -2,12 +2,17 @@ import React from "react";
 import { navigationMenu } from "./NavigationMenu";
 import { useNavigate } from "react-router-dom";
 import { Avatar, Button, Menu, MenuItem } from "@mui/material";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz"; // Fixed import
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../Store/Auth/Action";
 
 const Navigation = () => {
+  const { auth } = useSelector((store) => store);
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
- 
+  const dispatch = useDispatch();
+
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
@@ -17,10 +22,20 @@ const Navigation = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const handlelogout =()=>{
-    console.log("logout")
-    handleClose()
-  }
+
+  const handleLogout = () => {
+    console.log("Logging out...");
+    dispatch(logout());
+    handleClose();
+  };
+
+  // Debugging Logs (Remove them later)
+  console.log("Auth Object:", auth);
+  console.log("User Object:", auth.user);
+
+  // Prevent error when fullname is undefined
+  const username = auth.user?.fullname || "Guest User";
+  const formattedUsername = username.split(" ").join("_").toLowerCase();
 
   return (
     <div className="h-screen sticky top-0">
@@ -45,7 +60,7 @@ const Navigation = () => {
         <div className="space-y-6">
           {navigationMenu.map((item) => (
             <div
-              key={item.title} // Fixed missing key prop
+              key={item.title}
               className="cursor-pointer flex space-x-3 items-center"
               onClick={() =>
                 item.title === "Profile"
@@ -75,12 +90,12 @@ const Navigation = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Avatar
-            alt="username"
+            alt={username}
             src="https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_960_720.png"
           />
           <div>
-            <span> Ram </span>
-            <span className="opacity-70">@ram45552</span>
+            <p>{username}</p>
+            <span className="opacity-70">@{formattedUsername}</span>
           </div>
 
           <Button
@@ -107,7 +122,7 @@ const Navigation = () => {
               horizontal: "left",
             }}
           >
-            <MenuItem onClick={handlelogout}>Logout</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </div>
       </div>

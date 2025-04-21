@@ -1,23 +1,38 @@
 import { Avatar, Button } from "@mui/material";
 import { useFormik } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import ImageIcon from "@mui/icons-material/Image";
 import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import TagFacesIcon from "@mui/icons-material/TagFaces";
 import TweetCard from "./TweetCard";
+import { useDispatch, useSelector } from "react-redux";
+import { createTweet, getAllTweets } from "../../Store/Twit/Action";
+
 
 const HomeSection = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
+  const dispatch= useDispatch()
+  const {twit} = useSelector(store=>store)
+  console.log(twit.twits)
 
   const validationSchema = Yup.object().shape({
     content: Yup.string().required("Tweet is required"),
   });
 
-  const handleSubmit = (values) => {
+  const handleSubmit = (values,actions) => {
+    dispatch(createTweet(values));
+    actions.resetForm();
     console.log("values", values);
+    setSelectedImage(null)
   };
+
+  useEffect(()=>{
+    dispatch(getAllTweets())
+
+  },[twit.like,twit.retwit])
+
 
   const formik = useFormik({
     initialValues: {
@@ -28,9 +43,9 @@ const HomeSection = () => {
     validationSchema,
   });
 
-  const handleSelectImage = (event) => {
+  const handleSelectImage = async  (event) => {
     setUploadingImage(true);
-    const imgUrl = event.target.files[0];
+    const imgUrl = await uploadToCloudinary(event.target.files[0]);
     formik.setFieldValue("image", imgUrl);
     setSelectedImage(URL.createObjectURL(imgUrl)); // Show preview
     setUploadingImage(false);
@@ -97,11 +112,12 @@ const HomeSection = () => {
                 </Button>
               </div>
             </form>
+            
           </div>
         </div>
       </section>
       <section>
-        <TweetCard/>
+       {twit.twits.map((items)=>  <TweetCard item={item} /> )} 
       </section>
 
     </div>
