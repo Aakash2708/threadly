@@ -1,0 +1,6 @@
+{
+    "npm.runSilent": true,
+    "accessibility.signals.lineHasError": {
+        "sound": "off"
+    }
+}
